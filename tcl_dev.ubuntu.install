@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# This package installs header files for tcl.
+# For our Ubuntu 12.04 version it provides "/usr/include/tcl/tcl.h"
+apt-get install tcl-dev
