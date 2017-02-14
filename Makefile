@@ -22,6 +22,18 @@
 #
 #
 
+#### PROJECT SETTINGS ####
+# Destination directory, like a jail or mounted system
+DESTDIR = /
+INSTALL_PREFIX = usr/local
+
+# Note that _LIB and _INCLUDE are directories owned by cpptcl; however, _BIN
+# is assumed to be a shared directory.
+DEST_BIN = $(DESTDIR)$(INSTALL_PREFIX)/bin
+DEST_LIB = $(DESTDIR)$(INSTALL_PREFIX)/lib/cpptcl
+DEST_INCLUDE = $(DESTDIR)$(INSTALL_PREFIX)/include/cpptcl
+#### END PROJECT SETTINGS ####
+
 # global variables
 # C++ compiler
 export CXX = g++
@@ -59,12 +71,30 @@ EXAMPLEDIRS = examples
 
 # actions
 
-all: cpptcl.o
+all: cpptcl.o cpptcl.so
+
+cpptcl.so : %.so:%.cc $(HEADERS)
+	$(CXX) $(INCDIRS) $(CXXFLAGS) $(SHARED_LINKFLAGS) -c $< -o $@
 
 cpptcl.o : %.o:%.cc $(HEADERS)
 	$(CXX) $(INCDIRS) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: clean $(TESTDIRS) $(EXAMPLEDIRS)
+
+# Installs to the set path
+.PHONY: install
+install: cpptcl.o cpptcl.so cpptcl.h
+	mkdir -p $(DEST_LIB) $(DEST_INCLUDE)
+	chmod 755 ./cpptcl.o
+	cp ./cpptcl.o $(DEST_BIN)
+	cp ./cpptcl.so $(DEST_LIB)
+	cp ./cpptcl.h $(DEST_INCLUDE)
+# Installs to the set path
+.PHONY: uninstall
+uninstall:
+	rm  $(DEST_BIN)/cpptcl.o
+	rm  -r $(DEST_LIB)
+	rm  -r $(DEST_INCLUDE)
 
 test: cpptcl.o $(TESTDIRS)
 
